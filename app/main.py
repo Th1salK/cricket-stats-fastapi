@@ -2,11 +2,14 @@ from fastapi import FastAPI
 from sqlalchemy import text
 from app import models
 from app.database import Base, engine
+from app.routers import players
 
 app = FastAPI()
 
 # database table creations
 Base.metadata.create_all(bind=engine)
+
+app.include_router(players.router)
 
 
 @app.get("/")
