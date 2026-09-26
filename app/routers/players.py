@@ -54,3 +54,19 @@ def update_player(player_id: int, player: PlayerCreate, db: Session = Depends(ge
     db.refresh(db_player)
 
     return db_player
+
+
+@router.delete("/{player_id}")
+def delete_player(player_id: int, db: Session = Depends(get_db)):
+
+    db_player = db.get(Player, player_id)
+
+    if not db_player:
+        raise HTTPException(
+            status_code=400, details=f"Player with the Id {player_id} does not exist."
+        )
+
+    db.delete(db_player)
+    db.commit()
+
+    return {"message": f"Player with player ID {player_id} is deleted successfully."}
