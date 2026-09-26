@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
@@ -32,3 +32,25 @@ def get_all_players(db: Session = Depends(get_db)):
     players = db.scalars(select(Player)).all()
 
     return players
+
+
+@router.put("/{player_id}", response_model=PlayerResponse)
+def update_player(player_id: int, player: PlayerCreate, db: Session = Depends(get_db)):
+
+    db_player = db.get(Player, player_id)
+
+    if not db_player:
+        raise HTTPException(
+            status_code=404, detail=f"Player with id {player_id} does not exist."
+        )
+
+    db_player.name = player.name
+    db_player.team = player.team
+    db_player.matches = player.matches
+    db_player.wickets = player.wickets
+    db_player.runs = player.runs
+
+    db.commit()
+    db.refresh(db_player)
+
+    return db_player
